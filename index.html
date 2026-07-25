@@ -374,19 +374,26 @@ function render() {
     all: data.length,
     Pepabri: data.filter(x => x.type === 'Pepabri').length,
     Warakawuri: data.filter(x => x.type === 'Warakawuri').length,
+    'Pur TNI AD': data.filter(x => x.type === 'Pepabri' && x.group === 'TNI AD').length,
+    'Pur TNI AL': data.filter(x => x.type === 'Pepabri' && x.group === 'TNI AL').length,
+    'Pur TNI AU': data.filter(x => x.type === 'Pepabri' && x.group === 'TNI AU').length,
+    'Pur ASN': data.filter(x => x.type === 'Pepabri' && x.group === 'ASN').length,
   };
-  GROUPS.forEach(group => totals[group] = data.filter(x => x.group === group).length);
 
   const cards = [
     ['all', 'Total anggota'],
     ['Pepabri', 'Pepabri'],
     ['Warakawuri', 'Warakawuri'],
-    ...[...GROUPS].sort((a, b) => totals[b] - totals[a]).map(group => [group, group])
+    ['TNI AD', 'Pur TNI AD'],
+    ['TNI AL', 'Pur TNI AL'],
+    ['TNI AU', 'Pur TNI AU'],
+    ['ASN', 'Pur ASN']
   ];
 
   $('#stats').innerHTML = cards.map(([key, label], i) => {
     const active = activeType === key || activeGroup === key;
-    return `<button class="stat ${i < 3 ? 'stat-main' : 'stat-group'}${active ? ' active' : ''}" data-stat="${key}" aria-pressed="${active}"><strong>${totals[key]}</strong><span>${label}</span></button>`;
+    const value = totals[label] ?? totals[key] ?? 0;
+    return `<button class="stat ${i < 3 ? 'stat-main' : 'stat-group'}${active ? ' active' : ''}" data-stat="${key}" aria-pressed="${active}"><strong>${value}</strong><span>${label}</span></button>`;
   }).join('');
 
   const isPep = activeType === 'Pepabri';
@@ -625,6 +632,7 @@ document.addEventListener('click', async event => {
       activeGroup = '';
       setTab(key);
     } else {
+      setTab('Pepabri');
       activeGroup = activeGroup === key ? '' : key;
     }
     render();
@@ -856,4 +864,4 @@ render();
 setView('dashboard');
 registerPwa();
 load();
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a209d71e6f49ce63',t:'MTc4NDk2ODYyMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script></body></html>
