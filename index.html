@@ -232,6 +232,7 @@ input,textarea{color-scheme:light}
     <button class="burger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
     <h5 id="pageTitle">Dashboard</h5>
     <div class="ms-auto d-flex align-items-center gap-2">
+      <span class="badge badge-soft d-none" id="syncBadge"><i class="fa-solid fa-rotate fa-spin me-1"></i><span class="d-none d-sm-inline">Sinkronisasi...</span></span>
       <span class="badge badge-soft d-none d-sm-inline" id="clockBadge"></span>
       <span class="badge text-bg-warning d-none" id="adminBadge"><i class="fa-solid fa-user-shield me-1"></i><span id="adminName">Admin</span></span>
       <button class="btn btn-sm btn-outline-danger d-none" id="btnLogoutTop" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
@@ -938,12 +939,17 @@ function loading(show, text) {
   $('loadingText').textContent = text || 'Memuat data...';
   $('loadingOverlay').classList.toggle('show', !!show);
 }
+/* Indikator sinkronisasi kecil di topbar (tidak menghalangi halaman) */
+var syncCount = 0;
+function syncOn() { syncCount++; $('syncBadge').classList.remove('d-none'); }
+function syncOff() { syncCount = Math.max(0, syncCount - 1); if (!syncCount) $('syncBadge').classList.add('d-none'); }
 
 /* ================================================================
  *  API (Fetch JSON)
  * ================================================================ */
 async function api(payload, withLoading, loadText) {
   if (withLoading !== false) loading(true, loadText);
+  else syncOn();
   try {
     var res = await fetch(API_URL, {
       method: 'POST',
@@ -964,6 +970,7 @@ async function api(payload, withLoading, loadText) {
     throw e;
   } finally {
     if (withLoading !== false) loading(false);
+    else syncOff();
   }
 }
 
@@ -2236,16 +2243,16 @@ async function init() {
   applyAdminUI();
   initCustomDropdown();
   initPWA();
-  loading(true, 'Menyiapkan aplikasi...');
+  // Halaman tampil utuh lebih dulu; data disinkronkan di latar belakang
+  // (indikator kecil berputar di topbar, tidak menghalangi tampilan).
   try {
+    refreshDashboard(); // jalan paralel, kartu terisi begitu data tiba
     await Promise.all([loadMaster(), loadSettings()]);
     initPWA(); // perbarui ikon PWA dengan logo organisasi dari Setting
-    await refreshDashboard();
   } catch (e) { console.error(e); }
-  finally { loading(false); }
 }
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a21720987875f309',t:'MTc4NTEwNzk0Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a217547d0af3fce6',t:'MTc4NTExMDA3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
